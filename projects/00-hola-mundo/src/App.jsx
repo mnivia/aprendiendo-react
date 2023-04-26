@@ -28,11 +28,6 @@ export function App (){
             initialIsFollowing:true
         },
         {
-            userName:"MrBeast",
-            name:"Elbe",
-            initialIsFollowing:true
-        },
-        {
             userName:"Blessd",
             name:"Blecho",
             initialIsFollowing:true
