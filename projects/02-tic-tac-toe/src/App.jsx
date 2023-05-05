@@ -1,18 +1,27 @@
-import { useState } from 'react'
+import { useState , useEffect} from 'react'
 import confetti from 'canvas-confetti' 
 import { Square } from './components/Square'
 import {TURNS} from './constants.js'
 import {checkWinner,  checkEndGame } from './logic/board'
 import { WinnerModal } from './components/WinnerModal'
+import { saveGameStorage, resetGameStorage } from './logic/storage'
 import './App.css'
 
 function App() {
-  const [board,setBoard]= useState(
-    // ["x","x","x","o","o","o","x","x","x"]
-    Array(9).fill(null)
-    )
+  // ["x","x","x","o","o","o","x","x","x"]
+  const [board,setBoard]= useState(() =>{
+    const boardFromStorage = window.localStorage.getItem('board')
+    if(boardFromStorage) return JSON.parse(boardFromStorage)
+    return Array(9).fill(null)
+  }        
+  )
   
-  const [turn,setTurn]= useState(TURNS.X)
+  const [turn,setTurn]= useState(()=>{
+    const turnFromStorage = window.localStorage.getItem('turn')
+    return turnFromStorage ?? TURNS.X    
+    
+  })
+    
   //Ganador
   //Null no ganador false empty
   const[winner,setWinner] = useState(null)  
@@ -21,10 +30,14 @@ function App() {
     setBoard(Array(9).fill(null))
     setTurn(TURNS.X)
     setWinner(null)
+    //Limpiamos el almacenamiento
+    resetGameStorage()
+    
   }
 
 
   const updateBoard = (index) => {
+    
     //Si ya tiene algo no hace nada
     if (board[index] || winner ) return
 
@@ -36,6 +49,12 @@ function App() {
     //Cambiar el turno
     const newTurn = turn === TURNS.X ? TURNS.O : TURNS.X 
     setTurn(newTurn)
+    
+    //Guardamos en el storage
+    saveGameStorage({
+      board: newBoard,
+      turn: newTurn
+    })
 
     //Actualizar el ganador
     const newWinner= checkWinner(newBoard)
@@ -49,6 +68,11 @@ function App() {
     }    
 
   }
+
+  //usseEffect (Code to execute At least (once), cuando cambia => [])
+  useEffect(()=>{
+    console.log('useEffect')
+  },[winner])
 
   return (
     <main className='board'>
